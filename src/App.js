@@ -7,37 +7,39 @@ import { database } from './firebase';
 class App extends Component {
 
   state = {
-   
-    comments: [
-     
-    ]
+
+    comments: [],
+    isLoading: false
   }
 
 
   sendComment = (comment) => {
     this.setState({
-
-      comments: [ ...this.state.comments, comment]      
-
+      comments: [...this.state.comments, comment]
     })
   }
 
 
-componentDidMount() {
+  componentDidMount() {
+    this.setState({ isLoading: true })
+    this.comments = database.ref('comments');
 
-  this.comments =database.ref('comments');
-
-  this.comments.on('value', snapshot => {
-    this.setState({ comments: snapshot.val() });
-
-  })
-}
+    this.comments.on('value', snapshot => {
+      this.setState({
+        comments: snapshot.val(),
+        isLoading: false
+      });
+    })
+  }
 
   render() {
     return (
       <div >
-        <NewComment sendComment={this.sendComment} />        
-        <Comments comments = {this.state.comments} />
+        <NewComment sendComment={this.sendComment} />
+        <Comments comments={this.state.comments} />
+        {
+          this.state.isLoading && <p>Carregando ...</p>
+        }
       </div>
     );
   }
